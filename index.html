@@ -15,26 +15,26 @@
   <style>
     /* Avoid iOS double-tap zoom / grey tap flash on POS buttons */
     button, [onclick] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    @media print {
-  /* Hide everything on the page */
-  body * { visibility: hidden; }
-  
-  /* Make only the receipt visible */
-  #receipt-modal, #receipt-modal * { visibility: visible; }
-  
-  /* Position the receipt at the top left for the printer */
-  #receipt-modal { 
-    position: absolute; 
-    left: 0; 
-    top: 0; 
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background: white;
+   @media print {
+  body * {
+    visibility: hidden;
   }
-  
-  /* Hide the print/close buttons on the actual paper */
-  #receipt-modal button { display: none !important; }
+  #receipt-modal, #receipt-modal * {
+    visibility: visible;
+  }
+  #receipt-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: transparent;
+    padding: 0;
+    display: block !important;
+  }
+  /* Hide the action buttons during printing */
+  .no-print {
+    display: none !important;
+  }
 }
   </style>
 </head>
@@ -143,9 +143,12 @@
 
   </div>
 
-  <!-- THERMAL RECEIPT MODAL SIMULATION -->
-  <div id="receipt-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white p-4 rounded-lg w-72 shadow-2xl font-mono text-xs text-black border border-slate-300">
+ <!-- THERMAL RECEIPT MODAL -->
+<div id="receipt-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+  <div class="bg-white p-4 rounded-lg w-72 shadow-2xl font-mono text-xs text-black border border-slate-300">
+    
+    <!-- Printable Area -->
+    <div id="printable-receipt">
       <div class="text-center space-y-0.5">
         <p class="font-bold text-sm">GAMIPRABHA (PVT) LTD</p>
         <p class="text-[10px]">Coconut Product Manufacturers</p>
@@ -166,16 +169,28 @@
       <div class="text-center mt-3 pt-2 border-t border-dashed border-black text-[10px]">
         Thank You for Your Business!
       </div>
-      <div class="flex gap-2 mt-4">
-  <button onclick="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded font-sans font-semibold text-xs transition">
-    <i class="fa-solid fa-print"></i> Print
-  </button>
-  <button onclick="closeReceipt()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-1.5 rounded font-sans font-semibold text-xs transition">
-    Close / Clear
-  </button>
-</div>
     </div>
+
+    <!-- Action Buttons (Hidden on Printout) -->
+    <div class="no-print mt-4 space-y-2 font-sans">
+      <!-- Direct Print to Thermal / Standard Printer -->
+      <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-semibold text-xs flex items-center justify-center gap-1.5 shadow">
+        <i class="fa-solid fa-print"></i> Print to Printer
+      </button>
+
+      <!-- Send via WhatsApp -->
+      <button onclick="sendViaWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded font-semibold text-xs flex items-center justify-center gap-1.5 shadow">
+        <i class="fa-brands fa-whatsapp text-sm"></i> Send to WhatsApp
+      </button>
+
+      <!-- Close Modal -->
+      <button onclick="closeReceipt()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-1.5 rounded font-semibold text-xs">
+        Close / New Sale
+      </button>
+    </div>
+
   </div>
+</div>
 
   <script>
     const DEFAULT_PRODUCTS = [
