@@ -205,6 +205,7 @@
     let totalSales = 0;
     let totalProfit = 0;
     let invoiceCounter = 1001;
+    let lastReceiptData = null; // Variable to store current receipt data
 
     const STORAGE_KEY = 'gamiprabha-pos-state-v1';
     const fmt = (n) => `Rs. ${Number(n).toFixed(2)}`;
@@ -405,9 +406,13 @@
       saveState();
     }
 
+    // Update showReceiptModal to save current receipt info
     function showReceiptModal(total) {
-      document.getElementById('rec-inv').innerText = `INV-${invoiceCounter++}`;
-      document.getElementById('rec-date').innerText = new Date().toLocaleString();
+      const inv = `INV-${invoiceCounter++}`;
+      const dateStr = new Date().toLocaleString();
+      
+      document.getElementById('rec-inv').innerText = inv;
+      document.getElementById('rec-date').innerText = dateStr;
       document.getElementById('rec-total').innerText = fmt(total);
 
       const recItems = document.getElementById('rec-items');
@@ -418,8 +423,47 @@
         </div>
       `).join('');
 
+      // Store for WhatsApp / SMS sending
+      lastReceiptData = {
+        inv,
+        date: dateStr,
+        items: [...cart],
+        total: fmt(total)
+      };
+
       document.getElementById('receipt-modal').classList.remove('hidden');
       document.getElementById('receipt-modal').classList.add('flex');
+    }
+
+    // Function to format and send receipt via WhatsApp
+    function sendViaWhatsApp() {
+      if (!lastReceiptData) return;
+
+      const phone = prompt("Enter customer's WhatsApp phone number (e.g. 94771234567 or leave empty to choose contact):", "");
+      if (phone === null) return; // User canceled
+
+      let itemLines = lastReceiptData.items
+        .map(i => `• ${i.name} x${i.qty} = Rs. ${(i.price * i.qty).toFixed(2)}`)
+        .join('\n');
+
+      let message = `*GAMIPRABHA (PVT) LTD*\n` +
+        `Coconut Product Manufacturers\n` +
+        `--------------------------------\n` +
+        `Invoice: ${lastReceiptData.inv}\n` +
+        `Date: ${lastReceiptData.date}\n` +
+        `--------------------------------\n` +
+        `${itemLines}\n` +
+        `--------------------------------\n` +
+        `*TOTAL: ${lastReceiptData.total}*\n` +
+        `--------------------------------\n` +
+        `Thank you for your business!`;
+
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+      const waUrl = cleanPhone 
+        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+        : `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+      window.open(waUrl, '_blank');
     }
 
     function closeReceipt() {
