@@ -15,27 +15,15 @@
   <style>
     /* Avoid iOS double-tap zoom / grey tap flash on POS buttons */
     button, [onclick] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-   @media print {
-  body * {
-    visibility: hidden;
-  }
-  #receipt-modal, #receipt-modal * {
-    visibility: visible;
-  }
-  #receipt-modal {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    background: transparent;
-    padding: 0;
-    display: block !important;
-  }
-  /* Hide the action buttons during printing */
-  .no-print {
-    display: none !important;
-  }
-}
+    @media print {
+      body * { visibility: hidden; }
+      #receipt-modal, #receipt-modal * { visibility: visible; }
+      #receipt-modal {
+        position: absolute; left: 0; top: 0; width: 100%;
+        background: transparent; padding: 0; display: block !important;
+      }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen p-2 md:p-6 font-sans">
@@ -143,54 +131,61 @@
 
   </div>
 
- <!-- THERMAL RECEIPT MODAL -->
-<div id="receipt-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
-  <div class="bg-white p-4 rounded-lg w-72 shadow-2xl font-mono text-xs text-black border border-slate-300">
-    
-    <!-- Printable Area -->
-    <div id="printable-receipt">
-      <div class="text-center space-y-0.5">
-        <p class="font-bold text-sm">GAMIPRABHA (PVT) LTD</p>
-        <p class="text-[10px]">Coconut Product Manufacturers</p>
-        <p class="text-[10px]">Tel: +94 34 228 9900</p>
-        <p class="text-[10px]">--------------------------------</p>
+  <!-- THERMAL RECEIPT MODAL -->
+  <div id="receipt-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white p-4 rounded-lg w-72 shadow-2xl font-mono text-xs text-black border border-slate-300">
+      
+      <!-- Printable Area -->
+      <div id="printable-receipt">
+        <div class="text-center space-y-0.5">
+          <p class="font-bold text-sm">GAMIPRABHA (PVT) LTD</p>
+          <p class="text-[10px]">Coconut Product Manufacturers</p>
+          <p class="text-[10px]">Tel: +94 34 228 9900</p>
+          <p class="text-[10px]">--------------------------------</p>
+        </div>
+        <div class="my-2 space-y-0.5 text-[11px]">
+          <p>Invoice: <span id="rec-inv">INV-001</span></p>
+          <p>Date: <span id="rec-date"></span></p>
+          <p>--------------------------------</p>
+        </div>
+        <div id="rec-items" class="space-y-1 text-[11px]">
+          <!-- Receipt items -->
+        </div>
+        <div class="mt-2 pt-1 border-t border-dashed border-black text-right font-bold text-sm">
+          TOTAL: <span id="rec-total">Rs. 0.00</span>
+        </div>
+        <div class="text-center mt-3 pt-2 border-t border-dashed border-black text-[10px]">
+          Thank You for Your Business!
+        </div>
       </div>
-      <div class="my-2 space-y-0.5 text-[11px]">
-        <p>Invoice: <span id="rec-inv">INV-001</span></p>
-        <p>Date: <span id="rec-date"></span></p>
-        <p>--------------------------------</p>
+
+      <!-- Action Buttons (Hidden on Printout) -->
+      <div class="no-print mt-4 space-y-2 font-sans">
+        
+        <!-- WhatsApp Section -->
+        <div class="bg-slate-50 p-2 rounded border border-slate-200">
+          <label class="text-[10px] text-slate-600 font-bold mb-1 block">Customer WhatsApp Number:</label>
+          <div class="flex gap-2">
+            <input type="tel" id="wa-phone" placeholder="e.g. 0771234567" class="flex-1 border border-slate-300 rounded px-2 py-1 text-xs outline-none focus:border-green-500">
+            <button onclick="sendViaWhatsApp()" class="bg-green-500 hover:bg-green-600 text-white px-3 rounded font-semibold text-xs flex items-center justify-center gap-1 shadow">
+              <i class="fa-brands fa-whatsapp text-sm"></i> Send
+            </button>
+          </div>
+        </div>
+
+        <!-- Direct Print to Thermal / Standard Printer -->
+        <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-semibold text-xs flex items-center justify-center gap-1.5 shadow">
+          <i class="fa-solid fa-print"></i> Print to Printer
+        </button>
+
+        <!-- Close Modal -->
+        <button onclick="closeReceipt()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-1.5 rounded font-semibold text-xs">
+          Close / New Sale
+        </button>
       </div>
-      <div id="rec-items" class="space-y-1 text-[11px]">
-        <!-- Receipt items -->
-      </div>
-      <div class="mt-2 pt-1 border-t border-dashed border-black text-right font-bold text-sm">
-        TOTAL: <span id="rec-total">Rs. 0.00</span>
-      </div>
-      <div class="text-center mt-3 pt-2 border-t border-dashed border-black text-[10px]">
-        Thank You for Your Business!
-      </div>
+
     </div>
-
-    <!-- Action Buttons (Hidden on Printout) -->
-    <div class="no-print mt-4 space-y-2 font-sans">
-      <!-- Direct Print to Thermal / Standard Printer -->
-      <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-semibold text-xs flex items-center justify-center gap-1.5 shadow">
-        <i class="fa-solid fa-print"></i> Print to Printer
-      </button>
-
-      <!-- Send via WhatsApp -->
-      <button onclick="sendViaWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded font-semibold text-xs flex items-center justify-center gap-1.5 shadow">
-        <i class="fa-brands fa-whatsapp text-sm"></i> Send to WhatsApp
-      </button>
-
-      <!-- Close Modal -->
-      <button onclick="closeReceipt()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-1.5 rounded font-semibold text-xs">
-        Close / New Sale
-      </button>
-    </div>
-
   </div>
-</div>
 
   <script>
     const DEFAULT_PRODUCTS = [
@@ -210,7 +205,6 @@
     const STORAGE_KEY = 'gamiprabha-pos-state-v1';
     const fmt = (n) => `Rs. ${Number(n).toFixed(2)}`;
 
-    // ---------- Persistence (localStorage — this device/browser only) ----------
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -235,8 +229,7 @@
           products, totalSales, totalProfit, invoiceCounter
         }));
       } catch (e) {
-        console.error('Could not save POS state (storage may be full or blocked).', e);
-        alert('Warning: could not save data on this device. Export a backup to avoid losing today\'s sales.');
+        console.error('Could not save POS state.', e);
       }
     }
 
@@ -278,14 +271,13 @@
           updateDashboard();
           alert('Backup imported successfully.');
         } catch (err) {
-          alert('Could not read this backup file. Please check it is a valid Gamiprabha POS export.');
+          alert('Could not read this backup file.');
         }
         event.target.value = '';
       };
       reader.readAsText(file);
     }
 
-    // ---------- Products / Cart ----------
     function renderProducts() {
       const container = document.getElementById('product-list');
       container.innerHTML = products.map(p => `
@@ -308,7 +300,7 @@
         if (existing.qty < prod.stock) {
           existing.qty++;
         } else {
-          alert(`ලබා ගත හැකි උපරිම තොගය: ${prod.stock} (Max available stock reached)`);
+          alert(`ලබා ගත හැකි උපරිම තොගය: ${prod.stock}`);
           return;
         }
       } else {
@@ -326,7 +318,7 @@
       if (newQty <= 0) {
         cart = cart.filter(i => i.id !== id);
       } else if (newQty > prod.stock) {
-        alert(`ලබා ගත හැකි උපරිම තොගය: ${prod.stock} (Max available stock reached)`);
+        alert(`ලබා ගත හැකි උපරිම තොගය: ${prod.stock}`);
         return;
       } else {
         item.qty = newQty;
@@ -375,11 +367,10 @@
     function processCheckout() {
       if (cart.length === 0) { alert('Cart එකට භාණ්ඩ එකතු කරන්න'); return; }
 
-      // Re-validate stock at checkout time in case anything changed.
       for (const item of cart) {
         const p = products.find(prod => prod.id === item.id);
         if (!p || item.qty > p.stock) {
-          alert(`${item.name} සඳහා ප්‍රමාණවත් තොගයක් නොමැත (Not enough stock).`);
+          alert(`${item.name} සඳහා ප්‍රමාණවත් තොගයක් නොමැත.`);
           return;
         }
       }
@@ -406,7 +397,6 @@
       saveState();
     }
 
-    // Update showReceiptModal to save current receipt info
     function showReceiptModal(total) {
       const inv = `INV-${invoiceCounter++}`;
       const dateStr = new Date().toLocaleString();
@@ -423,7 +413,6 @@
         </div>
       `).join('');
 
-      // Store for WhatsApp / SMS sending
       lastReceiptData = {
         inv,
         date: dateStr,
@@ -431,16 +420,17 @@
         total: fmt(total)
       };
 
+      // Clear the phone input box when opening a new receipt
+      document.getElementById('wa-phone').value = '';
+
       document.getElementById('receipt-modal').classList.remove('hidden');
       document.getElementById('receipt-modal').classList.add('flex');
     }
 
-    // Function to format and send receipt via WhatsApp
     function sendViaWhatsApp() {
       if (!lastReceiptData) return;
 
-      const phone = prompt("Enter customer's WhatsApp phone number (e.g. 94771234567 or leave empty to choose contact):", "");
-      if (phone === null) return; // User canceled
+      const phoneInput = document.getElementById('wa-phone').value;
 
       let itemLines = lastReceiptData.items
         .map(i => `• ${i.name} x${i.qty} = Rs. ${(i.price * i.qty).toFixed(2)}`)
@@ -458,9 +448,17 @@
         `--------------------------------\n` +
         `Thank you for your business!`;
 
-      const cleanPhone = phone.replace(/[^0-9]/g, '');
-      const waUrl = cleanPhone 
-        ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+      // Clean the input to only have numbers
+      const cleanPhone = phoneInput.replace(/[^0-9]/g, '');
+      
+      // Auto-format local Sri Lankan numbers (change 077... to 9477...)
+      let finalPhone = cleanPhone;
+      if (finalPhone.startsWith('0')) {
+        finalPhone = '94' + finalPhone.substring(1);
+      }
+
+      const waUrl = finalPhone 
+        ? `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`
         : `https://wa.me/?text=${encodeURIComponent(message)}`;
 
       window.open(waUrl, '_blank');
